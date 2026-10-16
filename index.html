@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tug of War Reading Quiz: Chapter 7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .font-game {
+            font-family: 'Fredoka One', cursive;
+        }
+        /* Custom rope transition animations */
+        @keyframes pulse-rope {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.15); }
+        }
+        .animate-rope {
+            animation: pulse-rope 1.5s infinite ease-in-out;
+        }
+        .transition-rope {
+            transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700 p-4 text-center shadow-lg">
+        <h1 class="font-game text-3xl sm:text-4xl text-amber-400 tracking-wider flex items-center justify-center gap-2">
+            ⚔️ TUG OF WAR QUIZ ⚔️
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-300 mt-1">I'm the King of the Castle — Chapter 7</p>
+    </header>
+
+    <main class="container mx-auto px-4 my-auto flex flex-col items-center gap-6 max-w-5xl">
+        
+        <!-- Scoreboard & Turn Indicator -->
+        <div class="w-full flex justify-between items-center bg-slate-800/90 rounded-2xl p-4 border border-slate-700 shadow-xl">
+            <!-- Red Team Info -->
+            <div id="card-red" class="flex items-center gap-3 p-3 rounded-xl border-2 border-rose-500/50 bg-rose-950/30 w-1/3 transition-all">
+                <div class="text-3xl sm:text-4xl">🔴</div>
+                <div>
+                    <h2 class="font-game text-rose-400 text-lg sm:text-xl">RED TEAM</h2>
+                    <p id="score-red" class="text-xs sm:text-sm text-slate-300">Position: Neutral</p>
+                </div>
+            </div>
+
+            <!-- Turn Banner -->
+            <div class="text-center px-4">
+                <span class="text-xs uppercase tracking-widest text-slate-400 font-bold block">Current Turn</span>
+                <div id="turn-badge" class="font-game text-xl sm:text-2xl text-rose-400 mt-1 px-4 py-1 bg-slate-900 rounded-full border border-slate-700 inline-block shadow-inner">
+                    🔴 RED TEAM
+                </div>
+            </div>
+
+            <!-- Blue Team Info -->
+            <div id="card-blue" class="flex items-center gap-3 p-3 rounded-xl border-2 border-transparent bg-slate-800/40 opacity-60 w-1/3 justify-end text-right transition-all">
+                <div>
+                    <h2 class="font-game text-blue-400 text-lg sm:text-xl">BLUE TEAM</h2>
+                    <p id="score-blue" class="text-xs sm:text-sm text-slate-300">Position: Neutral</p>
+                </div>
+                <div class="text-3xl sm:text-4xl">🔵</div>
+            </div>
+        </div>
+
+        <!-- Tug of War Visual Canvas Container -->
+        <div class="w-full bg-slate-800/60 rounded-3xl p-6 border border-slate-700 shadow-2xl relative overflow-hidden flex flex-col items-center">
+            
+            <!-- Target Markers -->
+            <div class="w-full flex justify-between text-xs font-bold text-slate-400 px-8 mb-2">
+                <span class="text-rose-400">🔥 RED WIN ZONE</span>
+                <span class="text-slate-500">CENTER LINE</span>
+                <span class="text-blue-400">BLUE WIN ZONE 🔥</span>
+            </div>
+
+            <!-- Rope & Character Area -->
+            <div class="w-full h-32 bg-slate-950/80 rounded-2xl border border-slate-800 relative flex items-center overflow-hidden">
+                
+                <!-- Center Line Marker -->
+                <div class="absolute left-1/2 top-0 bottom-0 w-1 bg-dashed bg-yellow-500/50 -translate-x-1/2 z-0 border-r-2 border-dashed border-yellow-400/60"></div>
+                
+                <!-- Red Win Line -->
+                <div class="absolute left-[15%] top-0 bottom-0 w-1 bg-rose-500/40 z-0 border-r-2 border-rose-500"></div>
+                <!-- Blue Win Line -->
+                <div class="absolute left-[85%] top-0 bottom-0 w-1 bg-blue-500/40 z-0 border-r-2 border-blue-500"></div>
+
+                <!-- Interactive Rope System -->
+                <div id="rope-system" class="absolute top-0 bottom-0 w-[160%] -left-[30%] flex items-center justify-center transition-rope">
+                    
+                    <!-- Red Pullers -->
+                    <div class="flex items-center gap-2 text-3xl sm:text-4xl pr-4">
+                        <span class="animate-bounce" style="animation-delay: 0.1s;">🤼</span>
+                        <span class="animate-bounce" style="animation-delay: 0.2s;">🤼</span>
+                        <span class="font-game text-rose-500 text-sm hidden sm:inline">PULL!</span>
+                    </div>
+
+                    <!-- The Rope -->
+                    <div class="h-4 flex-1 bg-amber-700 border-y-2 border-amber-900 rounded-full relative flex items-center justify-center shadow-md">
+                        <!-- Center Red Ribbon Marker -->
+                        <div class="w-6 h-8 bg-red-600 border-2 border-yellow-300 rounded-sm shadow-lg transform rotate-12 flex items-center justify-center text-[10px] font-bold text-white">
+                            🎀
+                        </div>
+                    </div>
+
+                    <!-- Blue Pullers -->
+                    <div class="flex items-center gap-2 text-3xl sm:text-4xl pl-4">
+                        <span class="font-game text-blue-500 text-sm hidden sm:inline">PULL!</span>
+                        <span class="animate-bounce" style="animation-delay: 0.2s;">🤼‍♂️</span>
+                        <span class="animate-bounce" style="animation-delay: 0.1s;">🤼‍♂️</span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full bg-slate-800 rounded-3xl p-6 border border-slate-700 shadow-2xl relative">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-3">
+                <span id="question-number" class="font-game text-amber-400 text-lg">Question 1 of 20</span>
+                <span id="timer" class="bg-slate-900 px-3 py-1 rounded-full border border-slate-700 text-sm font-bold text-slate-300">📖 Reading Program Quiz</span>
+            </div>
+
+            <!-- Question Text -->
+            <h3 id="question-text" class="text-lg sm:text-xl font-bold text-center my-4 leading-relaxed text-slate-100 min-h-[3rem] flex items-center justify-center">
+                Loading question...
+            </h3>
+
+            <!-- Answer Options Grid -->
+            <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                <!-- Options injected via JavaScript -->
+            </div>
+        </div>
+
+    </main>
+
+    <div id="victory-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-800 border-2 border-slate-700 p-8 rounded-3xl max-w-md w-full text-center shadow-2xl transform transition-all scale-95">
+            <div id="winner-emoji" class="text-6xl sm:text-7xl mb-4 animate-bounce">🏆</div>
+            <h2 id="winner-title" class="font-game text-3xl text-amber-400 mb-2">RED TEAM WINS!</h2>
+            <p id="winner-desc" class="text-slate-300 mb-6">Congratulations! Red Team successfully pulled the rope into their victory zone!</p>
+            
+            <button onclick="restartGame()" class="w-full py-4 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-slate-950 font-game text-xl rounded-2xl shadow-lg transition transform active:scale-95">
+                🔄 PLAY AGAIN
+            </button>
+        </div>
+    </div>
+
+    <script>
+        /*
+            COMPLETE CHAPTER 7 QUIZ DATASET
+            Matches all 20 questions provided with exact answer keys.
+        */
+        const quizData = [
+            {
+                question: "1. At the beginning of Chapter 7, what makes Charles realise that Edmund is frightened?",
+                options: [
+                    "A. Edmund becomes quiet and shaky.",
+                    "B. Edmund begins to laugh loudly.",
+                    "C. Edmund runs back towards Warings.",
+                    "D. Edmund asks Charles to carry his bag."
+                ],
+                answer: 0
+            },
+            {
+                question: "2. Why does Charles decide that he must take charge when the storm approaches?",
+                options: [
+                    "A. He wants to prove that he is stronger than adults.",
+                    "B. He recognises that Edmund is frightened and does not want to leave him.",
+                    "C. He wants to make Edmund return to Warings immediately.",
+                    "D. He has been ordered to lead by Edmund."
+                ],
+                answer: 1
+            },
+            {
+                question: "3. How does Charles help the boys shelter from the storm?",
+                options: [
+                    "A. He leads Edmund into an abandoned house.",
+                    "B. He builds a fire beside the stream.",
+                    "C. He finds thick bushes and shelters beneath them.",
+                    "D. He climbs a tree with Edmund."
+                ],
+                answer: 2
+            },
+            {
+                question: "4. What does Edmund do after the rain subsides and the sun comes out?",
+                options: [
+                    "A. He thanks Charles and lets him lead.",
+                    "B. He insists that they return to Warings.",
+                    "C. He leaves Charles under the bushes.",
+                    "D. He orders Charles to follow him to the stream."
+                ],
+                answer: 3
+            },
+            {
+                question: "5. What does Edmund mean when he declares, “I'm leader”?",
+                options: [
+                    "A. He is trying to reassert control over Charles.",
+                    "B. He wants Charles to choose the route.",
+                    "C. He is admitting that Charles saved him.",
+                    "D. He is asking Charles to return home alone."
+                ],
+                answer: 0
+            },
+            {
+                question: "6. What does Edmund say about the dead rabbit they encounter?",
+                options: [
+                    "A. It should be buried before they continue.",
+                    "B. Dead things do not matter.",
+                    "C. It must have been killed by the storm.",
+                    "D. Charles should take it back to Warings."
+                ],
+                answer: 1
+            },
+            {
+                question: "7. Why does Charles throw the dead rabbit away?",
+                options: [
+                    "A. He wants to use it to frighten Edmund.",
+                    "B. He thinks it could lead them out of the wood.",
+                    "C. He is horrified by its red wound.",
+                    "D. He wants to hide it from the approaching storm."
+                ],
+                answer: 2
+            },
+            {
+                question: "8. What does Edmund's reaction to Charles's distress over the rabbit suggest?",
+                options: [
+                    "A. He feels guilty about frightening Charles.",
+                    "B. He wants to help Charles overcome his fear.",
+                    "C. He is frightened of animals himself.",
+                    "D. He is paying Charles back for having been frightened earlier."
+                ],
+                answer: 3
+            },
+            {
+                question: "9. When Edmund slips on the wet ground, how does he respond afterwards?",
+                options: [
+                    "A. He claims he has found the stream and is not hurt.",
+                    "B. He asks Charles to carry him.",
+                    "C. He admits that he is too frightened to continue.",
+                    "D. He decides to stay where he has fallen."
+                ],
+                answer: 0
+            },
+            {
+                question: "10. Why does Charles follow Edmund even after realising that he does not have to obey him?",
+                options: [
+                    "A. He believes Edmund knows the way home for certain.",
+                    "B. He falls back into his habitual pattern of obedience.",
+                    "C. He wants to return to Warings as quickly as possible.",
+                    "D. He is afraid that Edmund will tell Joseph about him."
+                ],
+                answer: 1
+            },
+            {
+                question: "11. As the wood grows darker, what does Edmund reveal?",
+                options: [
+                    "A. He wants to continue exploring all night.",
+                    "B. He has already found a way out.",
+                    "C. He is tired and dislikes the dark wood.",
+                    "D. He is worried about Charles's injured foot."
+                ],
+                answer: 2
+            },
+            {
+                question: "12. How does Charles respond when Edmund admits that he dislikes the dark wood?",
+                options: [
+                    "A. He admits that he is equally frightened.",
+                    "B. He offers to carry Edmund back.",
+                    "C. He immediately turns back towards Warings.",
+                    "D. He calls Edmund a baby."
+                ],
+                answer: 3
+            },
+            {
+                question: "13. Why does Edmund suddenly decide to swim in the stream?",
+                options: [
+                    "A. He treats their expedition as a game and acts impulsively.",
+                    "B. He wants to wash the mud off his clothes.",
+                    "C. He believes swimming will lead them out of the wood.",
+                    "D. He is trying to rescue a trapped animal."
+                ],
+                answer: 0
+            },
+            {
+                question: "14. How does Charles feel when he joins Edmund in the stream?",
+                options: [
+                    "A. Ashamed and dependent.",
+                    "B. Strong and almost invincible.",
+                    "C. Angry that Edmund has taken control.",
+                    "D. Certain that they will drown."
+                ],
+                answer: 1
+            },
+            {
+                question: "15. What happens to Edmund while the boys are swimming?",
+                options: [
+                    "A. He loses his bag in the stream.",
+                    "B. He decides to swim back to Warings.",
+                    "C. He hurts his toenail.",
+                    "D. He refuses Charles's offer of help."
+                ],
+                answer: 2
+            },
+            {
+                question: "16. After Charles offers to help Edmund with his injured toenail, what insult does Edmund make?",
+                options: [
+                    "A. He says Charles looks like a rabbit.",
+                    "B. He says Charles looks like a baby.",
+                    "C. He says Charles looks like a king.",
+                    "D. He says Charles looks like a puppet."
+                ],
+                answer: 3
+            },
+            {
+                question: "17. Why does Charles begin to feel superior when he explains how to build a fire?",
+                options: [
+                    "A. He believes Edmund is afraid of the flames.",
+                    "B. He realises he has practical knowledge that Edmund lacks.",
+                    "C. He has discovered the quickest route home.",
+                    "D. He knows that Edmund has been pretending to be ill."
+                ],
+                answer: 1
+            },
+            {
+                question: "18. How does Edmund regain psychological power over Charles after Charles has become more confident?",
+                options: [
+                    "A. He reminds Charles that he is afraid of moths.",
+                    "B. He threatens to destroy the fire.",
+                    "C. He tells Charles that Joseph is coming.",
+                    "D. He hides Charles's penknife."
+                ],
+                answer: 0
+            },
+            {
+                question: "19. Why does Charles decide not to kill the rabbit he catches later in the chapter?",
+                options: [
+                    "A. He cannot find his penknife.",
+                    "B. He hears Edmund calling for help.",
+                    "C. Seeing the rabbit's small, bloodshot eyes makes him unable to kill it.",
+                    "D. He believes the rabbit can lead him out of the wood."
+                ],
+                answer: 2
+            },
+            {
+                question: "20. What does Charles do when he discovers Edmund lying face down in the stream?",
+                options: [
+                    "A. He leaves Edmund and continues alone.",
+                    "B. He calls for Joseph before touching Edmund.",
+                    "C. He waits until Edmund wakes up by himself.",
+                    "D. He pulls Edmund from the water and helps him recover."
+                ],
+                answer: 3
+            }
+        ];
+
+        // Game State Variables
+        let currentQuestion = 0;
+        let ropePosition = 0; // -3 (Red Win), 0 (Neutral), +3 (Blue Win)
+        let currentTurn = 'red'; // 'red' or 'blue'
+        let isAnswerLocked = false;
+
+        // DOM Elements
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const questionNumber = document.getElementById('question-number');
+        const ropeSystem = document.getElementById('rope-system');
+        const turnBadge = document.getElementById('turn-badge');
+        const cardRed = document.getElementById('card-red');
+        const cardBlue = document.getElementById('card-blue');
+        const scoreRed = document.getElementById('score-red');
+        const scoreBlue = document.getElementById('score-blue');
+        const victoryModal = document.getElementById('victory-modal');
+        const winnerTitle = document.getElementById('winner-title');
+        const winnerDesc = document.getElementById('winner-desc');
+        const winnerEmoji = document.getElementById('winner-emoji');
+
+        // Initialize Game
+        function initGame() {
+            currentQuestion = 0;
+            ropePosition = 0;
+            currentTurn = 'red';
+            isAnswerLocked = false;
+            victoryModal.classList.add('hidden');
+            victoryModal.classList.remove('flex');
+            updateRopeUI();
+            updateTurnUI();
+            loadQuestion();
+        }
+
+        // Load Question to Screen
+        function loadQuestion() {
+            isAnswerLocked = false;
+            const data = quizData[currentQuestion];
+            questionNumber.textContent = `Question ${currentQuestion + 1} of ${quizData.length}`;
+            questionText.textContent = data.question;
+
+            optionsContainer.innerHTML = '';
+            data.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = "p-4 bg-slate-700/80 hover:bg-slate-600 border border-slate-600 hover:border-amber-400 rounded-2xl text-left font-bold text-sm sm:text-base transition-all transform active:scale-95 flex items-center gap-3";
+                btn.innerHTML = `
+                    <span class="w-8 h-8 flex-shrink-0 rounded-xl bg-slate-800 border border-slate-600 flex items-center justify-center text-amber-400 font-game text-sm">
+                        ${String.fromCharCode(65 + index)}
+                    </span>
+                    <span>${option}</span>
+                `;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        // Check Selected Answer
+        function checkAnswer(selectedIndex, selectedBtn) {
+            if (isAnswerLocked) return;
+            isAnswerLocked = true;
+
+            const correctIndex = quizData[currentQuestion].answer;
+            const buttons = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                // Correct Answer!
+                selectedBtn.classList.remove('bg-slate-700/80', 'border-slate-600');
+                selectedBtn.classList.add('bg-emerald-600', 'border-emerald-400', 'text-white');
+
+                // Pull Rope towards current team
+                if (currentTurn === 'red') {
+                    ropePosition -= 1; // Pull to Red (Left)
+                } else {
+                    ropePosition += 1; // Pull to Blue (Right)
+                }
+
+            } else {
+                // Wrong Answer!
+                selectedBtn.classList.remove('bg-slate-700/80', 'border-slate-600');
+                selectedBtn.classList.add('bg-rose-600', 'border-rose-400', 'text-white');
+
+                // Highlight Correct Answer
+                buttons[correctIndex].classList.remove('bg-slate-700/80', 'border-slate-600');
+                buttons[correctIndex].classList.add('bg-emerald-600/60', 'border-emerald-400');
+
+                // Penalty: Opponent pulls rope!
+                if (currentTurn === 'red') {
+                    ropePosition += 1; // Pulled toward Blue
+                } else {
+                    ropePosition -= 1; // Pulled toward Red
+                }
+            }
+
+            // Update Tug of War Visuals
+            updateRopeUI();
+
+            // Check if game won or advance to next question
+            setTimeout(() => {
+                if (ropePosition <= -3) {
+                    endGame('red');
+                } else if (ropePosition >= 3) {
+                    endGame('blue');
+                } else {
+                    // Switch turn and move to next question
+                    currentTurn = currentTurn === 'red' ? 'blue' : 'red';
+                    currentQuestion = (currentQuestion + 1) % quizData.length;
+                    updateTurnUI();
+                    loadQuestion();
+                }
+            }, 1200);
+        }
+
+        // Update Rope Position on Screen
+        function updateRopeUI() {
+            const baseLeft = -30;
+            const offset = ropePosition * 5; // 5% shift per pull
+            ropeSystem.style.left = `${baseLeft + offset}%`;
+
+            // Update Scoreboard Status Text
+            if (ropePosition === 0) {
+                scoreRed.textContent = "Position: Tied";
+                scoreBlue.textContent = "Position: Tied";
+            } else if (ropePosition < 0) {
+                scoreRed.textContent = `Leading +${Math.abs(ropePosition)}`;
+                scoreBlue.textContent = `Trailing -${Math.abs(ropePosition)}`;
+            } else {
+                scoreRed.textContent = `Trailing -${ropePosition}`;
+                scoreBlue.textContent = `Leading +${ropePosition}`;
+            }
+        }
+
+        // Update Turn Indicator Banner
+        function updateTurnUI() {
+            if (currentTurn === 'red') {
+                turnBadge.textContent = "🔴 RED TEAM'S TURN";
+                turnBadge.className = "font-game text-xl sm:text-2xl text-rose-400 mt-1 px-4 py-1 bg-slate-900 rounded-full border border-rose-500/50 inline-block shadow-inner";
+                
+                cardRed.classList.remove('opacity-60', 'border-transparent', 'bg-slate-800/40');
+                cardRed.classList.add('border-rose-500/50', 'bg-rose-950/30');
+
+                cardBlue.classList.add('opacity-60', 'border-transparent', 'bg-slate-800/40');
+                cardBlue.classList.remove('border-blue-500/50', 'bg-blue-950/30');
+            } else {
+                turnBadge.textContent = "🔵 BLUE TEAM'S TURN";
+                turnBadge.className = "font-game text-xl sm:text-2xl text-blue-400 mt-1 px-4 py-1 bg-slate-900 rounded-full border border-blue-500/50 inline-block shadow-inner";
+
+                cardBlue.classList.remove('opacity-60', 'border-transparent', 'bg-slate-800/40');
+                cardBlue.classList.add('border-blue-500/50', 'bg-blue-950/30');
+
+                cardRed.classList.add('opacity-60', 'border-transparent', 'bg-slate-800/40');
+                cardRed.classList.remove('border-rose-500/50', 'bg-rose-950/30');
+            }
+        }
+
+        // End Game and Show Winner Modal
+        function endGame(winner) {
+            victoryModal.classList.remove('hidden');
+            victoryModal.classList.add('flex');
+
+            if (winner === 'red') {
+                winnerEmoji.textContent = "🔴🏆";
+                winnerTitle.textContent = "RED TEAM WINS!";
+                winnerTitle.className = "font-game text-3xl text-rose-400 mb-2";
+                winnerDesc.textContent = "Outstanding! Red Team defeated Blue Team in the Tug of War Quiz!";
+            } else {
+                winnerEmoji.textContent = "🔵🏆";
+                winnerTitle.textContent = "BLUE TEAM WINS!";
+                winnerTitle.className = "font-game text-3xl text-blue-400 mb-2";
+                winnerDesc.textContent = "Outstanding! Blue Team defeated Red Team in the Tug of War Quiz!";
+            }
+        }
+
+        // Restart Game
+        function restartGame() {
+            initGame();
+        }
+
+        // Start Game on Page Load
+        window.onload = initGame;
+    </script>
+</body>
+</html>
